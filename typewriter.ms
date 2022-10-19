@@ -11,16 +11,22 @@ end function
 
 row = ""
 
+backspace = function
+    globals.row = globals.row[0:-1]
+    printRow
+end function
+
 typeChar = function(char)
-    if char == "<BACKSPACE>" then
-        globals.row = globals.row[0:-1]
-    else
-        globals.row = row + char
-    end if
+    globals.row = row + char
+    printRow
+end function
+
+printRow = function
     if globals.row.len > 34 then
         printAt(12, 0, globals.row[-34:])
     else
         offset = 34 - globals.row.len
+        printAt(12, 0, " " * offset)
         printAt(12, offset, globals.row)
     end if
 end function
@@ -36,9 +42,13 @@ checkInput = function
     drawKeyboard(9,26)
 	if chordUp then
 		stroke = globals.asetniop.finishStroke
-        for char in stroke
-            typeChar(char)
-        end for
+        if stroke == "<BACKSPACE>" then
+            backspace
+        else
+            for char in stroke
+                typeChar(char)
+            end for
+        end if
 	end if
 end function
 
