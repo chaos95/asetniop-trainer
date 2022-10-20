@@ -90,5 +90,5 @@ asetniopDictionary = {
 
 AsetniopKeyboard = new ChordedKeyboard
 AsetniopKeyboard.init = function(inputKeys)
-    super.init(inputKeys, "asetniop", asetniopDictionary)
+    super.init inputKeys, "asetniop", asetniopDictionary 
 end function

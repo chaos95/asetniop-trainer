@@ -12,7 +12,7 @@ end function
 row = ""
 
 backspace = function
-    globals.row = globals.row[0:-1]
+    globals.row = row[0:-1]
     printRow
 end function
 
@@ -22,31 +22,31 @@ typeChar = function(char)
 end function
 
 printRow = function
-    if globals.row.len > 34 then
-        printAt(12, 0, globals.row[-34:])
+    if row.len > 34 then
+        printAt 12, 0, row[-34:] 
     else
-        offset = 34 - globals.row.len
-        printAt(12, 0, " " * offset)
-        printAt(12, offset, globals.row)
+        offset = 34 - row.len
+        printAt 12, 0, " " * offset 
+        printAt 12, offset, row 
     end if
 end function
 
 checkInput = function
 	chordUp = 1
-    for inputKey in globals.asetniop.inputKeys
+    for inputKey in asetniop.inputKeys
         if key.pressed(inputKey) then
-            globals.asetniop.add(inputKey)
+            asetniop.add inputKey 
             chordUp = 0
         end if
     end for
-    drawKeyboard(9,26)
+    drawKeyboard 9, 26 
 	if chordUp then
-		stroke = globals.asetniop.finishStroke
+		stroke = asetniop.finishStroke
         if stroke == "<BACKSPACE>" then
             backspace
         else
             for char in stroke
-                typeChar(char)
+                typeChar char 
             end for
         end if
 	end if
@@ -54,8 +54,8 @@ end function
 
 drawKeyboard = function(row, col)
 	c = text.color
-    for key in globals.asetniop.systemKeys
-        if globals.asetniop.chord[key] then
+    for key in asetniop.systemKeys
+        if asetniop.chord[key] then
             text.color = color.yellow
         else
             text.color = color.olive
@@ -67,7 +67,7 @@ drawKeyboard = function(row, col)
 end function
 
 asetniop = new chording.AsetniopKeyboard
-asetniop.init("qweruiop")
+asetniop.init "qweruiop" 
 
 done = false
 
