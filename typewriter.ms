@@ -1,87 +1,29 @@
 import "utils"
-ensureImport "chording"
+ensureImport "textUtils"
 
-printAt = function(row, col, s)
-	text.row = row
-	text.column = col
-	text.delimiter = ""
-	print s
-	text.delimiter = char(13)
+HALF_SCREEN_WIDTH = 34
+
+Typewriter = {}
+Typewriter.init = function(caret_y)
+    self.caret_y = caret_y
+    self.row = ""
 end function
 
-row = ""
-
-backspace = function
-    globals.row = row[0:-1]
-    printRow
+Typewriter.backspace = function
+    self.row = self.row[0:-1]
+    self.printRow
 end function
 
-typeChar = function(char)
-    globals.row = row + char
-    printRow
+Typewriter.typeChar = function(char)
+    self.row = self.row + char
+    self.printRow
 end function
 
-printRow = function
-    if row.len > 34 then
-        printAt 12, 0, row[-34:] 
+Typewriter.printRow = function
+    if self.row.len > HALF_SCREEN_WIDTH then
+        textUtils.printAt 0, self.caret_y, self.row[-HALF_SCREEN_WIDTH:] 
     else
-        offset = 34 - row.len
-        printAt 12, 0, " " * offset 
-        printAt 12, offset, row 
+        offsetSpace = " " * (HALF_SCREEN_WIDTH - self.row.len)
+        textUtils.printAt 0, self.caret_y, offsetSpace + self.row
     end if
 end function
-
-checkInput = function
-	chordUp = 1
-    for inputKey in asetniop.inputKeys
-        if key.pressed(inputKey) then
-            asetniop.add inputKey 
-            chordUp = 0
-        end if
-    end for
-    drawKeyboard 9, 26 
-	if chordUp then
-		stroke = asetniop.finishStroke
-        if stroke == "<BACKSPACE>" then
-            backspace
-        else
-            for char in stroke
-                typeChar char 
-            end for
-        end if
-	end if
-end function
-
-drawKeyboard = function(row, col)
-	c = text.color
-    for key in asetniop.systemKeys
-        if asetniop.chord[key] then
-            text.color = color.yellow
-        else
-            text.color = color.olive
-        end if
-        printAt row, col, key
-        col = col + 2
-    end for
-	text.color = c
-end function
-
-asetniop = new chording.AsetniopKeyboard
-asetniop.init "qweruiop" 
-
-done = false
-
-normalTextColor = text.color
-clear
-
-// Main loop:
-while not done
-	checkInput
-	yield
-end while
-
-text.row = 5
-text.color = normalTextColor
-wait 1
-print
-exit
