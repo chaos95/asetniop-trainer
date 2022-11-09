@@ -24,14 +24,22 @@ assistant.init(tileDisplayLayer, pixelDisplayLayer, "character_robot")
 main = new game.Game
 main.init(asetniop, typewriter, assistant)
 prevTime = 0
+frameRates = [0] * 10
+frameCount = 0
+avgFrameRate = 0
 // Main loop:
 while not main.done
     currTime = time()
     delta = currTime - prevTime
-    frameRate = 1.0 / delta
     main.update delta
     main.draw
-    text.printAt 64, 20, frameRate
+    frameRates[frameCount] = 1.0 / delta
+    frameCount = frameCount + 1
+    if frameCount == 10 then // Update framerate every 10 frames
+        avgFrameRate = frameRates.sum / 10
+        frameCount = 0
+    end if
+    text.printAt 64, 25, str(avgFrameRate)[:4]
     prevTime = currTime
     yield
 end while
