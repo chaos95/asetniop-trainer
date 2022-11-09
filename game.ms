@@ -8,22 +8,15 @@ Game.init = function(chordEngine, typewriter, assistant)
     self.chordEngine = chordEngine
     self.typewriter = typewriter
     
-    backspace = function
-        outer.typewriter.backspace
-    end function
-    self.chordEngine.addHandler("backspace", @backspace)
-    
-    newLine = function
-        outer.typewriter.newLine
-    end function
-    self.chordEngine.addHandler("newLine", @newLine)
+    self.chordEngine.addHandler "backspace", @typewriter.backspace 
+    self.chordEngine.addHandler "newLine", @typewriter.newLine
 
     write = function(stroke)
         for char in stroke
-           outer.typewriter.typeChar char 
+           typewriter.typeChar char 
         end for
     end function
-    self.chordEngine.addHandler("write", @write)
+    self.chordEngine.addHandler "write", @write 
 end function
 
 Game.drawKeyboard = function(row, col)
@@ -48,4 +41,5 @@ end function
 Game.draw = function
     self.drawKeyboard 11, 26
     self.assistant.draw
+    self.typewriter.printRow 12
 end function
