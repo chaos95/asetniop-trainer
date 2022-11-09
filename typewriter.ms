@@ -21,9 +21,9 @@ end function
 
 Typewriter.printRow = function
     if self.row.len > HALF_SCREEN_WIDTH then
-        textUtils.printAt 0, self.caret_y, self.row[-HALF_SCREEN_WIDTH:] 
+        text.printAt 0, self.caret_y, self.row[-HALF_SCREEN_WIDTH:] 
     else
         offsetSpace = " " * (HALF_SCREEN_WIDTH - self.row.len)
-        textUtils.printAt 0, self.caret_y, offsetSpace + self.row
+        text.printAt 0, self.caret_y, offsetSpace + self.row
     end if
 end function

@@ -1,5 +1,12 @@
+import "utils"
+ensureImport "delegate"
 
 ChordedKeyboard = {}
+ChordedKeyboard._hooks = {
+	"backspace": delegate.Delegate.make("backspace", 0),
+	"write": delegate.Delegate.make("write", 1),
+	"newLine": delegate.Delegate.make("newLine", 0),
+}
 ChordedKeyboard.init = function(inputKeys, systemKeys, dictionary)
 	self.chord = {}
 	self.keyMap = {}
@@ -7,6 +14,8 @@ ChordedKeyboard.init = function(inputKeys, systemKeys, dictionary)
 		self.keyMap[inputKeys[i]] = systemKeys[i]
 	end for
 	self.dictionary = dictionary
+	self.chordDown = 0
+	self.startKey = ""
 	self.clear
 end function
 
@@ -14,6 +23,8 @@ ChordedKeyboard.clear = function
 	for kv in self.keyMap
 		self.chord[kv.value] = 0
 	end for
+	self.startkey = null
+	self.chordDown = false
 end function
 
 ChordedKeyboard.stringify = function
@@ -26,14 +37,19 @@ ChordedKeyboard.stringify = function
 	return chordString
 end function
 
+ChordedKeyboard.calculateOutput = function(stroke, startKey)
+	returnVal = ""
+	if self.dictionary.hasIndex(stroke) then
+		returnVal = self.dictionary[stroke]
+	end if
+	return returnVal
+end function
+
 ChordedKeyboard.finishStroke = function
 	stroke = self.stringify
+	startKey = self.startKey
 	self.clear
-	if self.dictionary.hasIndex(stroke) then
-		// TODO: Process backspace/enter/space/esc
-		return self.dictionary[stroke]
-	end if
-	return ""
+	return self.calculateOutput(stroke, startKey)
 end function
 
 ChordedKeyboard.inputKeys = function
@@ -44,9 +60,41 @@ ChordedKeyboard.systemKeys = function
 	return self.keyMap.values
 end function
 
+ChordedKeyboard.addHandler = function(hookName, handler)
+	self._hooks[hookName].add(@handler)
+end function
+
 ChordedKeyboard.add = function(inputKey)
-	outputKey = self.keyMap[inputKey]
-	self.chord[outputKey] = 1
+	systemKey = self.keyMap[inputKey]
+	if self.chord.values.sum == 0 then
+		self.chordDown = true
+		self.startkey = systemKey
+	end if
+	self.chord[systemKey] = 1
+end function
+
+ChordedKeyboard.isDown = function(systemKey)
+	return self.chord[systemKey]
+end function
+
+ChordedKeyboard.checkInput = function
+	chordUp = true
+    for inputKey in self.inputKeys
+        if key.pressed(inputKey) then
+            self.add inputKey 
+            chordUp = false
+        end if
+    end for
+	if self.chordDown and chordUp then
+		stroke = self.finishStroke
+        if stroke == "<BACKSPACE>" then
+            self._hooks.backspace.call []
+		else if stroke == "<NEWLINE>" then
+			self._hooks.newLine.call []
+        else
+			self._hooks.write.call [stroke]
+        end if
+	end if
 end function
 
 asetniopDictionary = {
@@ -86,9 +134,11 @@ asetniopDictionary = {
 "np": "m",
 "ip": "!",
 "op": ";",
+"niop": "<NEWLINE>",
 }
 
-AsetniopKeyboard = new ChordedKeyboard
-AsetniopKeyboard.init = function(inputKeys)
-    super.init inputKeys, "asetniop", asetniopDictionary 
+makeAsetniopKeyboard = function(inputKeys)
+	retval = new ChordedKeyboard
+	retval.init inputKeys, "asetniop", asetniopDictionary
+	return retval
 end function
