@@ -8,7 +8,11 @@ Game.init = function(chordEngine, typewriter, assistant)
     self.chordEngine = chordEngine
     self.typewriter = typewriter
     
-    self.chordEngine.addHandler "backspace", @typewriter.backspace 
+    backspaceWrapper = function
+        typewriter.backspace
+    end function
+    
+    self.chordEngine.addHandler "backspace", @backspaceWrapper
     self.chordEngine.addHandler "newLine", @typewriter.newLine
 
     write = function(stroke)
