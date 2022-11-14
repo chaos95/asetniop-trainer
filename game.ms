@@ -1,5 +1,6 @@
 import "utils"
 ensureImport "textUtils"
+ensureImport "vector"
 
 Game = {}
 Game.init = function(chordEngine, typewriter, assistant)
@@ -7,7 +8,7 @@ Game.init = function(chordEngine, typewriter, assistant)
     self.assistant = assistant
     self.chordEngine = chordEngine
     self.typewriter = typewriter
-    
+
     backspaceWrapper = function
         typewriter.backspace
     end function
@@ -23,16 +24,15 @@ Game.init = function(chordEngine, typewriter, assistant)
     self.chordEngine.addHandler "write", @write 
 end function
 
-Game.drawKeyboard = function(row, col)
+Game.drawKeyboard = function(pos)
 	c = text.color
-    for key in self.chordEngine.systemKeys
-        if self.chordEngine.isDown(key) then
+    for keyDC in self.chordEngine.keyDisplay
+        if self.chordEngine.isDown(keyDC.key) then
             text.color = color.yellow
         else
             text.color = color.olive
         end if
-        text.printAt col, row, key
-        col = col + 2
+        text.printAt pos.plus(keyDC.pos), keyDC.key
     end for
 	text.color = c
 end function
@@ -43,7 +43,8 @@ Game.update = function(delta)
 end function
 
 Game.draw = function
-    self.drawKeyboard 11, 26
+    text.clear
+    self.drawKeyboard Vec2.make(26, 9)
     self.assistant.draw
-    self.typewriter.printRow 12
+    self.typewriter.printRow
 end function

@@ -3,13 +3,13 @@ ensureImport "typewriter"
 ensureImport "chording"
 ensureImport "game"
 ensureImport "training"
+ensureImport "vector"
 
 normalTextColor = text.color
 
-asetniop = chording.makeAsetniopKeyboard("arstneio")
+asetniop = chording.makeAsetniopKeyboard("qweruiopvn")
 
 typewriter = new typewriter.Typewriter
-typewriter.init(12)
 
 clear
 display(6).mode = displayMode.tile
@@ -39,7 +39,7 @@ while not main.done
         avgFrameRate = frameRates.sum / 10
         frameCount = 0
     end if
-    text.printAt 64, 25, str(avgFrameRate)[:4]
+    text.printAt Vec2.make(64, 25), str(avgFrameRate)[:4]
     prevTime = currTime
     yield
 end while

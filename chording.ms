@@ -7,13 +7,15 @@ ChordedKeyboard._hooks = {
 	"write": delegate.Delegate.make("write", 1),
 	"newLine": delegate.Delegate.make("newLine", 0),
 }
-ChordedKeyboard.init = function(inputKeys, systemKeys, dictionary)
+
+ChordedKeyboard.init = function(inputKeys, systemKeys, dictionary, keyDisplay)
 	self.chord = {}
 	self.keyMap = {}
 	for i in range(0,systemKeys.len - 1)
 		self.keyMap[inputKeys[i]] = systemKeys[i]
 	end for
 	self.dictionary = dictionary
+	self.keyDisplay = keyDisplay
 	self.chordDown = 0
 	self.startKey = ""
 	self.clear
@@ -355,8 +357,21 @@ asetniopDictionary = {
 "asetniop": ["especially", "himself"],
 }
 
+asetniopKeyDisplay = [
+    { "key": "a", "pos": Vec2.make(0, 2) },
+    { "key": "s", "pos": Vec2.make(2, 2) },
+    { "key": "e", "pos": Vec2.make(4, 2) },
+    { "key": "t", "pos": Vec2.make(6, 2) },
+    { "key": "n", "pos": Vec2.make(8, 2) },
+    { "key": "i", "pos": Vec2.make(10, 2) },
+    { "key": "o", "pos": Vec2.make(12, 2) },
+    { "key": "p", "pos": Vec2.make(14, 2) },
+    { "key": "SHIFT", "pos": Vec2.make(1, 0) },
+    { "key": "SPACE", "pos": Vec2.make(8, 0) },
+]
+
 makeAsetniopKeyboard = function(inputKeys)
 	retval = new ChordedKeyboard
-	retval.init inputKeys, "asetniop", asetniopDictionary
+	retval.init inputKeys, ["a", "s", "e", "t", "n", "i", "o", "p", "SHIFT", "SPACE"], asetniopDictionary, asetniopKeyDisplay
 	return retval
 end function

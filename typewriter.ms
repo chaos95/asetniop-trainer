@@ -1,29 +1,42 @@
 import "utils"
 ensureImport "textUtils"
+ensureImport "vector"
+ensureImport "math"
 
 HALF_SCREEN_WIDTH = 34
+PAGE_WIDTH = 80
 
 Typewriter = {}
-Typewriter.init = function(caret_y)
-    self.caret_y = caret_y
-    self.row = ""
-end function
+Typewriter.page = []
+Typewriter.row = " " * PAGE_WIDTH
+Typewriter.carriage = 0
+Typewriter.caret_pos = Vec2.make(34, 12)
 
 Typewriter.backspace = function
-    self.row = self.row[0:-1]
-    self.printRow
+    if self.carriage > 0 then
+        self.carriage = self.carriage - 1
+    end if
 end function
 
 Typewriter.typeChar = function(char)
-    self.row = self.row + char
-    self.printRow
+    if self.carriage >= PAGE_WIDTH then
+        return
+    end if 
+    self.row = self.row[:self.carriage] + char + self.row[self.carriage+1:]
+    self.carriage = self.carriage + 1
+end function
+
+Typewriter.newLine = function
+    self.page.push row
+    self.carriage = 0
+    self.row = " " * PAGE_WIDTH
 end function
 
 Typewriter.printRow = function
-    if self.row.len > HALF_SCREEN_WIDTH then
-        text.printAt 0, self.caret_y, self.row[-HALF_SCREEN_WIDTH:] 
-    else
-        offsetSpace = " " * (HALF_SCREEN_WIDTH - self.row.len)
-        text.printAt 0, self.caret_y, offsetSpace + self.row
-    end if
+    rowStart = math.max(0, self.caret_pos.x - self.carriage)
+    rowBeforeCaret = self.carriage - math.min(self.caret_pos.x, self.carriage)
+    rowLength = math.min(68 - rowStart, PAGE_WIDTH - rowBeforeCaret)
+    printPos = Vec2.make(rowStart, self.caret_pos.y)
+    text.printAt printPos, self.row[rowBeforeCaret : rowBeforeCaret+rowLength]
+    //text.printAt Vec2.make(0,0), "c:" + self.carriage + " rs:" + rowStart + " rl:" + rowLength + " rbc:" + rowBeforeCaret
 end function

@@ -15,3 +15,6 @@ end function
 Vec2.plus = function(other)
 	return Vec2.make(self.x + other.x, self.y + other.y)
 end function
+
+
+globals["Vec2"] = Vec2

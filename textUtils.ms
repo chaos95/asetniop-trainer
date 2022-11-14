@@ -1,9 +1,9 @@
 
-TextDisplay.printAt = function(col, row, s)
+TextDisplay.printAt = function(pos, s)
 	prevrow = self.row
 	prevcolumn = self.column
-	self.row = row
-	self.column = col
+	self.row = pos.y
+	self.column = pos.x
 	self.delimiter = ""
 	self.print s
 	self.delimiter = char(12)
