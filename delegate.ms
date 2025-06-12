@@ -41,7 +41,7 @@ Delegate.add = function(handler)
     end if
 end function
 
-Delegate.call = function(args = [])
+Delegate.call = function(args)
 	for handler in self.handlers
 		handler(args)
 	end for

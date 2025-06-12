@@ -11,8 +11,10 @@ ChordedKeyboard._hooks = {
 ChordedKeyboard.init = function(inputKeys, systemKeys, dictionary, keyDisplay)
 	self.chord = {}
 	self.keyMap = {}
+	self.chordIndices = {}
 	for i in range(0,systemKeys.len - 1)
-		self.keyMap[inputKeys[i]] = systemKeys[i]
+		self.keyMap[inputKeys[i]] = systemKeys[i]["key"]
+		self.chordIndices[systemKeys[i]["key"]] = systemKeys[i]["chordIndex"]
 	end for
 	self.dictionary = dictionary
 	self.keyDisplay = keyDisplay
@@ -40,11 +42,23 @@ ChordedKeyboard.stringify = function
 end function
 
 ChordedKeyboard.calculateOutput = function(stroke, startKey)
-	returnVal = ""
+	output = ""
 	if self.dictionary.hasIndex(stroke) then
-		returnVal = self.dictionary[stroke]
+		output = self.dictionary[stroke]
+		if output isa list then
+			index = self.getListIndex(startKey)
+			output = output[index]
+		end if
 	end if
-	return returnVal
+	return output
+end function
+
+ChordedKeyboard.getListIndex = function(startKey)
+	index = 0
+	if self.chordIndices.hasIndex(startKey) then
+		index = self.chordIndices[startKey]
+	end if
+	return index
 end function
 
 ChordedKeyboard.finishStroke = function
@@ -70,7 +84,7 @@ ChordedKeyboard.add = function(inputKey)
 	systemKey = self.keyMap[inputKey]
 	if self.chord.values.sum == 0 then
 		self.chordDown = true
-		self.startkey = systemKey
+		self.startKey = systemKey
 	end if
 	self.chord[systemKey] = 1
 end function
@@ -355,23 +369,66 @@ asetniopDictionary = {
 "aetniop": ["family", "important"],
 "setniop": ["something", "possible"],
 "asetniop": ["especially", "himself"],
+"SPACE": " ",
+"SHIFTSPACE": "<NEWLINE>",
 }
 
-asetniopKeyDisplay = [
-    { "key": "a", "pos": Vec2.make(0, 2) },
-    { "key": "s", "pos": Vec2.make(2, 2) },
-    { "key": "e", "pos": Vec2.make(4, 2) },
-    { "key": "t", "pos": Vec2.make(6, 2) },
-    { "key": "n", "pos": Vec2.make(8, 2) },
-    { "key": "i", "pos": Vec2.make(10, 2) },
-    { "key": "o", "pos": Vec2.make(12, 2) },
-    { "key": "p", "pos": Vec2.make(14, 2) },
-    { "key": "SHIFT", "pos": Vec2.make(1, 0) },
-    { "key": "SPACE", "pos": Vec2.make(8, 0) },
+asetniopKeys = [
+    { "key": "a", "pos": Vec2.make(0, 2), "chordIndex": 0 },
+    { "key": "s", "pos": Vec2.make(2, 2), "chordIndex": 0 },
+    { "key": "e", "pos": Vec2.make(4, 2), "chordIndex": 0 },
+    { "key": "t", "pos": Vec2.make(6, 2), "chordIndex": 0 },
+    { "key": "n", "pos": Vec2.make(8, 2), "chordIndex": 1 },
+    { "key": "i", "pos": Vec2.make(10, 2), "chordIndex": 1 },
+    { "key": "o", "pos": Vec2.make(12, 2), "chordIndex": 1 },
+    { "key": "p", "pos": Vec2.make(14, 2), "chordIndex": 1 },
+    { "key": "SHIFT", "pos": Vec2.make(1, 0), "chordIndex": 0 },
+    { "key": "SPACE", "pos": Vec2.make(8, 0), "chordIndex": 0 },
 ]
 
 makeAsetniopKeyboard = function(inputKeys)
-	retval = new ChordedKeyboard
-	retval.init inputKeys, ["a", "s", "e", "t", "n", "i", "o", "p", "SHIFT", "SPACE"], asetniopDictionary, asetniopKeyDisplay
-	return retval
+	systemKeys = []
+	displayKeys = []
+	for keyMap in asetniopKeys
+		systemKeys.push { "key": keyMap["key"], "chordIndex": keyMap["chordIndex"] }
+		displayKeys.push { "key": keyMap["key"], "pos": keyMap["pos"] }
+	end for
+	print systemKeys
+	keyboard = new ChordedKeyboard
+	keyboard.init inputKeys, systemKeys, asetniopDictionary, displayKeys
+	return keyboard
+end function
+
+
+taipoDictionary = {
+
+}
+
+taipoKeyDisplay = [
+	{ "key": "r", "pos": Vec2.make(0, 4) },
+	{ "key": "s", "pos": Vec2.make(2, 4) },
+	{ "key": "n", "pos": Vec2.make(4, 4) },
+	{ "key": "i", "pos": Vec2.make(6, 4) },
+	{ "key": "a", "pos": Vec2.make(0, 2) },
+	{ "key": "o", "pos": Vec2.make(2, 2) },
+	{ "key": "t", "pos": Vec2.make(4, 2) },
+	{ "key": "e", "pos": Vec2.make(6, 2) },
+	{ "key": "IT", "pos": Vec2.make(0, 0) },
+	{ "key": "OT", "pos": Vec2.make(3, 0) },
+	{ "key": "i", "pos": Vec2.make(10, 4) },
+	{ "key": "n", "pos": Vec2.make(12, 4) },
+	{ "key": "s", "pos": Vec2.make(14, 4) },
+	{ "key": "r", "pos": Vec2.make(16, 4) },
+	{ "key": "e", "pos": Vec2.make(10, 2) },
+	{ "key": "t", "pos": Vec2.make(12, 2) },
+	{ "key": "o", "pos": Vec2.make(14, 2) },
+	{ "key": "a", "pos": Vec2.make(16, 2) },
+	{ "key": "OT", "pos": Vec2.make(10, 0) },
+	{ "key": "IT", "pos": Vec2.make(13, 0) },
+]
+
+makeTaipoKeyboard = function(inputKeys)
+	keyboard = new ChordedKeyboard
+	keyboard.init inputKeys, ["i", "n", "s", "r", "e", "t", "o", "a", "IT", "OT"], taipoDictionary, taipoKeyDisplay
+	return keyboard
 end function

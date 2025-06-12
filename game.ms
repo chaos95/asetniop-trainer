@@ -12,9 +12,12 @@ Game.init = function(chordEngine, typewriter, assistant)
     backspaceWrapper = function
         typewriter.backspace
     end function
-    
     self.chordEngine.addHandler "backspace", @backspaceWrapper
-    self.chordEngine.addHandler "newLine", @typewriter.newLine
+    
+    newlineWrapper = function
+        typewriter.newLine
+    end function
+    self.chordEngine.addHandler "newLine", @newlineWrapper
 
     write = function(stroke)
         for char in stroke
@@ -28,7 +31,11 @@ Game.drawKeyboard = function(pos)
 	c = text.color
     for keyDC in self.chordEngine.keyDisplay
         if self.chordEngine.isDown(keyDC.key) then
-            text.color = color.yellow
+            if self.chordEngine.startKey == keyDC.key then
+                text.color = color.orange
+            else
+                text.color = color.yellow
+            end if
         else
             text.color = color.olive
         end if
@@ -43,8 +50,7 @@ Game.update = function(delta)
 end function
 
 Game.draw = function
-    text.clear
-    self.drawKeyboard Vec2.make(26, 9)
+    self.typewriter.printPage
+    self.drawKeyboard Vec2.make(26, 7)
     self.assistant.draw
-    self.typewriter.printRow
 end function

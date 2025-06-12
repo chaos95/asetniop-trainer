@@ -1,6 +1,7 @@
 import "utils"
 ensureImport "vector"
 ensureImport "speechBubble"
+ensureImport "template"
 
 Vec2 = vector.Vec2
 
@@ -13,6 +14,7 @@ AssistantFrame.make = function(pos, portrait, firstLine, secondLine, duration)
 	retval.firstLine = firstLine
 	retval.secondLine = secondLine
 	retval.duration = duration
+	retval.textLimit = 0.0
 	return retval
 end function
 
@@ -47,20 +49,28 @@ end function
 
 AssistantAnimation.tick = function(delta)
 	self._frameTime = self._frameTime + delta
+	self.textLimit = math.clamp(self._frameTime, 0.0, 0.5) / 0.5
 	if self._frameTime > self.currFrame.duration then self.nextFrame
 end function
 
 intro = AssistantAnimation.make([
 	AssistantFrame.make(Vec2.make(0, 0), "wide", "Welcome!", "", 3.0),
-	AssistantFrame.make(Vec2.make(0, 0), "talk", "My name is Marvis Bacon.", "I'll be your training assistant for today!", 5.0),
+	AssistantFrame.make(Vec2.make(0, 0), "talk", "My name is {assistantName}.", "I'll be your training assistant for today!", 5.0),
+])
+
+askName = AssistantAnimation.make([
+	AssistantFrame.make(Vec2.make(0, 0), "think", "What's your name?", "", 2.0),
+	AssistantFrame.make(Vec2.make(0, 0), "wide", "Oops! I forgot, you don't know how to type yet!", "We'd better fix that so you can tell me your name!", 5.0),
 ])
 
 Mavis = {}
 Mavis.portrait = {}
 
-Mavis.init = function(tileDisplayLayer, pixelDisplayLayer, portraitPrefix = "character_femaleAdventurer")
+Mavis.init = function(tileDisplayLayer, pixelDisplayLayer, portraitPrefix = "character_femaleAdventurer", assistantName)
 	self.td = tileDisplayLayer
 	self.pd = pixelDisplayLayer
+
+	self.assistantName = assistantName
 	
 	self.currAnim = intro
 
@@ -90,5 +100,7 @@ Mavis.draw = function
 	portrait_pos = self.portrait_pos.plus(frame.pos)
 	portrait = self.portrait[frame.portrait]
 	self.pd.drawImage portrait, portrait_pos.x, portrait_pos.y, portrait.width, portrait.height
-	self.speechBubble.draw(self.speechBubble_pos, frame.firstLine, frame.secondLine)
+	firstLine = template.format(frame.firstLine, self)
+	secondLine = template.format(frame.secondLine, self)
+	self.speechBubble.draw(self.speechBubble_pos, firstLine, secondLine, self.currAnim.textLimit)
 end function

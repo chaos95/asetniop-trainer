@@ -1,3 +1,5 @@
+import "utils"
+ensureImport "math"
 
 SpeechBubble = {}
 SpeechBubble.init = function(tileDisplayLayer, pixelDisplayLayer, width, height)
@@ -27,7 +29,7 @@ SpeechBubble.loadTileSet = function(path, tileSize, wangOffset)
     self.SOLID = 15 + wangOffset
 end function
 
-SpeechBubble.draw = function(pos, firstLine = "", secondLine = "")
+SpeechBubble.draw = function(pos, firstLine = "", secondLine = "", textLimit = 1.0)
     td = self.td
     td.clear self.SOLID
 
@@ -52,6 +54,12 @@ SpeechBubble.draw = function(pos, firstLine = "", secondLine = "")
     tileSize = self.td.tileSetTileSize
     textX = pos.x + (1 * tileSize)
     textY = pos.y + ((self.maxRow) * tileSize) - fontSize
+    textLimit1 = 2.0 * math.clamp(textLimit, 0.0, 0.5)
+    textLimit2 = 2.0 * math.clamp(textLimit - 0.5, 0.0, 0.5)
+    textLength1 = ceil(textLimit1 * firstLine.len)
+    textLength2 = ceil(textLimit2 * secondLine.len)
+    firstLine = firstLine[0:textLength1]
+    secondLine = secondLine[0:textLength2]
     self.pd.print(firstLine, textX, textY)
     self.pd.print(secondLine, textX, textY - fontSize)
 end function
